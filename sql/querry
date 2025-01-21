@@ -1,0 +1,5 @@
+select * from "food-product".users;// querry user
+
+-- reset sequence id
+DROP SEQUENCE IF EXISTS "food-product".account_seq;
+CREATE SEQUENCE "food-product".account_seq START 1;

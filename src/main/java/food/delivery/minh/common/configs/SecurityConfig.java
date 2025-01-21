@@ -1,4 +1,4 @@
-package food.delivery.minh.configs;
+package food.delivery.minh.common.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +11,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()  // Disable CSRF if needed (optional)
-            .authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/").permitAll()  // Allow access to the root endpoint
-                .anyRequest().authenticated()     // Secure other endpoints
-            )
-            .httpBasic(); // Enable basic HTTP security (optional)
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(authorizeRequests -> 
+            authorizeRequests.anyRequest().permitAll()
+        )
+        .logout(logout -> logout
+            .permitAll()
+        );
         return http.build();
     }
 }
+
