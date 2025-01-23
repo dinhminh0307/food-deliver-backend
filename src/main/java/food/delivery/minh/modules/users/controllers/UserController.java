@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import food.delivery.minh.common.auth.jwt.JwtUtil;
+import food.delivery.minh.common.dto.AccountDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.modules.users.services.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,7 +36,10 @@ public class UserController {
 
     @PostMapping("signup")
     public ResponseEntity<?> createAccount(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createAccount(user));
+        User savedUser = userService.createAccount(user);
+        AccountDTO accountDTO = new AccountDTO(savedUser.getAccount_id(), savedUser.getEmail(), savedUser.getLastName()
+                                , savedUser.getFirstName(), savedUser.getPhoneNumber(), savedUser.getDob(), savedUser.getImageUrl());
+        return ResponseEntity.ok(accountDTO);
     }
 
     @PostMapping("login")

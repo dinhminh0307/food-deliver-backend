@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import food.delivery.minh.common.auth.jwt.JwtUtil;
+import food.delivery.minh.common.dto.AccountDTO;
 import food.delivery.minh.common.models.accounts.Admin;
 import food.delivery.minh.modules.admins.services.AdminService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +33,10 @@ public class AdminController {
 
     @PostMapping("signupAdmin")
     public ResponseEntity<?> createAccount(@RequestBody Admin admin) {
-        return ResponseEntity.ok(adminService.createAccount(admin));
+        Admin savedUser = adminService.createAccount(admin);
+        AccountDTO accountDTO = new AccountDTO(savedUser.getAccount_id(), savedUser.getEmail(), savedUser.getLastName()
+                                , savedUser.getFirstName(), savedUser.getPhoneNumber(), savedUser.getDob(), savedUser.getImageUrl());
+        return ResponseEntity.ok(accountDTO);
     }
 
     @PostMapping("loginAdmin")
