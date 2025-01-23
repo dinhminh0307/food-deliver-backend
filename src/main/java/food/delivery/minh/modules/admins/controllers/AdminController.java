@@ -1,4 +1,4 @@
-package food.delivery.minh.modules.users.controllers;
+package food.delivery.minh.modules.admins.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,41 +13,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import food.delivery.minh.common.auth.jwt.JwtUtil;
-import food.delivery.minh.common.models.accounts.User;
-import food.delivery.minh.modules.users.services.UserService;
+import food.delivery.minh.common.models.accounts.Admin;
+import food.delivery.minh.modules.admins.services.AdminService;
 import jakarta.servlet.http.HttpServletResponse;
-
 
 
 @RestController
 @RequestMapping("/")
-
-public class UserController {
+public class AdminController {
     @Autowired
-    UserService userService;
-
+    AdminService adminService;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    AuthenticationManager authenticationManager;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    JwtUtil jwtUtil;
 
-    @PostMapping("signup")
-    public ResponseEntity<?> createAccount(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createAccount(user));
+    @PostMapping("signupAdmin")
+    public ResponseEntity<?> createAccount(@RequestBody Admin admin) {
+        return ResponseEntity.ok(adminService.createAccount(admin));
     }
 
-    @PostMapping("login")
-    public ResponseEntity<?> login(@RequestBody User user, HttpServletResponse response) {
+    @PostMapping("loginAdmin")
+    public ResponseEntity<?> login(@RequestBody Admin admin, HttpServletResponse response) {
         try {
             // Authenticate using raw password provided by user
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
+                new UsernamePasswordAuthenticationToken(admin.getEmail(), admin.getPassword())
             );
 
             if (authentication.isAuthenticated()) {
-                String token = jwtUtil.generateToken(user.getEmail());
+                String token = jwtUtil.generateToken(admin.getEmail());
 
                     ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", token)
                             .httpOnly(true)
@@ -66,6 +63,6 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
-    }
     
+    }
 }

@@ -1,6 +1,7 @@
 package food.delivery.minh.common.configs;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,11 +16,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import food.delivery.minh.common.auth.jwt.AppUserDetailsService;
+import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
+
 @Configuration
 public class SecurityConfig {
 
     @Autowired
     private JwtRequestFilter authFilter;
+
+    @Value("${security.public-endpoints}")
+    private String[] publicEndpoints;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -28,7 +35,7 @@ public class SecurityConfig {
         .cors(cors -> cors.configure(http))  // Ensure CORS config is applied
         .authorizeHttpRequests(authorizeRequests -> 
             authorizeRequests
-            .requestMatchers("/login", "/signup").permitAll()  // Allow public access to login and signup
+            .requestMatchers(publicEndpoints).permitAll()  // Allow public access to login and signup
             .anyRequest().authenticated()
         )
         .logout(logout -> logout

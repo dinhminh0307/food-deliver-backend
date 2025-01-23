@@ -1,4 +1,4 @@
-package food.delivery.minh.common.configs;
+package food.delivery.minh.common.auth.jwt;
 
 import java.io.IOException;
 
