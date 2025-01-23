@@ -3,6 +3,7 @@ package food.delivery.minh.common.configs;
 import java.util.Date;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -13,8 +14,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtUtil {
 
-    // @Value("${jwt.secret}")
-    private String SECRET_KEY = "VaN0DW5qlLQfA+L6bJRgGJQfQVKyNC+Y/0/DndhdJ2O7cmVDRh6hziBq6LyRUsrb722x5zJObEj2B6h4Qw9OMQ==";
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
 
     // Generate Token
     public String generateToken(String email) {
