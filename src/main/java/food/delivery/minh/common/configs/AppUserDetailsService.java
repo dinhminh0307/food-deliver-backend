@@ -20,7 +20,6 @@ public class AppUserDetailsService implements UserDetailsService{
         // First, try to find the user as a Farmer
         Account user = userRepository.findByEmail(email).orElseThrow();
         if (user != null) {
-            System.out.println("User detail error");
             return mapToUserDetails((Account) user);
         }
 

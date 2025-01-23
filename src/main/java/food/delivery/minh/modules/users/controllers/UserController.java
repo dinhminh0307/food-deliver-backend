@@ -41,7 +41,6 @@ public class UserController {
     @PostMapping("login")
     public ResponseEntity<?> login(@RequestBody User user, HttpServletResponse response) {
         try {
-            System.out.println("Hello");
             // Authenticate using raw password provided by user
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
@@ -60,7 +59,7 @@ public class UserController {
 
                 response.addHeader("Set-Cookie", jwtCookie.toString());
 
-                return ResponseEntity.ok(user);
+                return ResponseEntity.ok("Login Successfully");
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed.");
             }
