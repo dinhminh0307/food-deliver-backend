@@ -1,6 +1,7 @@
 package food.delivery.minh.modules.users.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,16 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+
     public User createAccount(User user) {
         // encrypt the user password
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
+
         return userRepository.save((User) user); 
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }
