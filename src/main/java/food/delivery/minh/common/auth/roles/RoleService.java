@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import food.delivery.minh.common.enums.RoleEnum.ROLE;
+import food.delivery.minh.common.enums.TypeEnum.ROLE;
 import food.delivery.minh.common.models.accounts.Admin;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.modules.admins.repos.AdminRepository;
