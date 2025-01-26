@@ -1,8 +1,11 @@
 package food.delivery.minh.modules.products.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import food.delivery.minh.common.dto.ProductDTO;
+import food.delivery.minh.common.enums.TypeEnum;
 import food.delivery.minh.common.models.products.Product;
 import food.delivery.minh.modules.products.services.ProductService;
 
@@ -26,5 +30,30 @@ public class ProductController {
             return ResponseEntity.ok(returnProduct);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fail to create product");
+    }
+    
+    @GetMapping("product/get")
+    public ResponseEntity<?> getProductsByType(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam String type) {
+        Pageable pageable = PageRequest.of(page, size);
+        if(TypeEnum.ProductType.FOODS.name().toLowerCase().equals(type)) {
+            return ResponseEntity.ok().body(productService.getAllFood(pageable));
+        } else if(TypeEnum.ProductType.GAMES.name().toLowerCase().equals(type)) {
+            return ResponseEntity.ok().body(productService.getAllGame(pageable));
+        } else if(TypeEnum.ProductType.MOVIES.name().toLowerCase().equals(type)) {
+            return ResponseEntity.ok().body(productService.getAllMovie(pageable));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No resource found");
+    }
+    
+    @GetMapping("product/all")
+    public ResponseEntity<?> getAllProducts(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(productService.getAllPRoduct(pageable));
     }
 }

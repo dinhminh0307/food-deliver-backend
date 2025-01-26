@@ -39,6 +39,16 @@ public class ProductService {
     @Autowired
     ProductTypeService productTypeService;
 
+    public Page<ProductDTO> getAllPRoduct(Pageable pageable) {
+        Page<Product> listProducts = productRepository.findAll(pageable);
+        return listProducts.map(prod -> new ProductDTO(
+                prod.getProductId(),
+                prod.getName(),
+                prod.getPrice(),
+                prod.getDescription()
+        ));
+    }
+
     public Page<ProductDTO> getAllFood(Pageable pageable) {
         Page<Foods> listFood = foodRepository.findAll(pageable);
         return listFood.map(food -> new ProductDTO(
