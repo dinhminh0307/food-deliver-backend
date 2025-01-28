@@ -28,6 +28,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private String browserToken;
 
+    private String email;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Retrieve the token from the cookie
@@ -43,6 +45,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     token = cookie.getValue();
                     setBrowserToken(token);
                     email = jwtUtil.extractEmail(token);
+                    setUserEmail(email);
                 }
             }
         } else {
@@ -77,5 +80,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     public void setBrowserToken(String browserToken)
     {
         this.browserToken = browserToken;
+    }
+
+    public String getUserEmail() {
+        return this.email;
+    }
+
+    public void setUserEmail(String email) {
+        this.email = email;
     }
 }

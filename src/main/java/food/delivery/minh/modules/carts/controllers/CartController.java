@@ -33,6 +33,7 @@ public class CartController {
         }
     )
     public ResponseEntity<?> addToCart(@RequestBody Product product) {
+        
         return ResponseEntity.ok(cartService.addCart(product));
     }
 }

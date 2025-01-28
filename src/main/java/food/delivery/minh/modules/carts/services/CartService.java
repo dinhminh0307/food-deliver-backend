@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
 import food.delivery.minh.common.dto.CartDTO;
 import food.delivery.minh.common.dto.ProductDTO;
 import food.delivery.minh.common.models.products.Cart;
@@ -19,9 +20,14 @@ public class CartService {
     @Autowired
     CartRepository cartRepository;
 
+    @Autowired
+    private JwtRequestFilter authFilter;
+
     public CartDTO addCart(Product product) {
-        List<Cart> carts = cartRepository.findAll();
-        if(carts.isEmpty()) {
+        
+        Cart carts = cartRepository.findByUserEmail(authFilter.getUserEmail());
+        if(carts == null) {
+            System.out.println("Null Cart");
             Cart newCart = new Cart();
             newCart.setPrice(product.getPrice());
             newCart.setProducts(Arrays.asList(product));
@@ -45,7 +51,7 @@ public class CartService {
         }
         
         // if not empty, update the cart
-        Cart foundCart = carts.get(0);
+        Cart foundCart = carts;
         List<Product> updatedProducts = new ArrayList<>(foundCart.getProducts());
         updatedProducts.add(product);
         foundCart.setProducts(updatedProducts);
@@ -66,4 +72,6 @@ public class CartService {
             productDTOs
         );
     }
+
+    
 }
