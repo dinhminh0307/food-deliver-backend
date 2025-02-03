@@ -2,16 +2,22 @@ package food.delivery.minh.modules.carts.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import food.delivery.minh.common.api.RestApiService;
 import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
+import food.delivery.minh.common.dto.CartDTO;
+import food.delivery.minh.common.dto.ProductDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.products.Product;
@@ -31,6 +37,10 @@ public class CartService {
     private static final String PRODUCT_UPDATE_API = "http://localhost:8080/product/update";
 
     private static final String USER_UPDATE_API = "http://localhost:8080/currentUser/update";
+
+    private String GET_USER_URL = "http://localhost:8080/currentUser";
+
+    private static final  String PRODUCT_FIND_ID_API = "http://localhost:8080/product/get/uuid?id=";
 
     @Autowired
     RestApiService restApiService;
@@ -80,5 +90,33 @@ public class CartService {
         return savedCart;
     }
     
-
+    public CartDTO getCartFromUser() throws NoResourceFoundException {
+        // get the current user rest api
+        User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
+        
+        // get the cart base on account id
+         // Fetch the user's cart directly instead of looping
+         Optional<Cart> optionalCart = cartRepository.findByAccountId(user.getAccount_id());
+         if(optionalCart.isPresent()) {
+            Cart foundCart = optionalCart.get();
+            
+            // get the product list rest api
+            List<ProductDTO> products = new ArrayList<>();
+            ResponseEntity<Product> response;
+            for(UUID p : foundCart.getProducts()) {
+                String newEndpoint = PRODUCT_FIND_ID_API + p.toString();
+                System.out.println("API endpoint: " + newEndpoint);
+                response = restApiService.getRequest(newEndpoint, Product.class);
+                if(response.getStatusCode().is2xxSuccessful()) {
+                    products.add(new ProductDTO(response.getBody().getProductId(), response.getBody().getName(), response.getBody().getPrice(), response.getBody().getDescription()));
+                } else {
+                    throw new NoResourceFoundException(null, "ERror fetch cart");
+                }
+            }
+            return new CartDTO(foundCart.getCartId(), 
+                    foundCart.getPrice(), 
+                    products);
+         }
+         throw new NoResourceFoundException(null, "User have no cart");
+    }
 }

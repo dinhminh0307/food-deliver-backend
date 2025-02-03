@@ -2,11 +2,14 @@ package food.delivery.minh.modules.products.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import food.delivery.minh.common.dto.ProductDTO;
 import food.delivery.minh.common.enums.TypeEnum.ProductType;
@@ -167,5 +170,12 @@ public class ProductService {
         );
     }
     
+    public Product getProductById(UUID id) throws NoResourceFoundException {
+       Optional<Product> product = productRepository.findById(id);
+       if(!product.isPresent()) {
+            throw new NoResourceFoundException(null, "Cant not find product by Id");
+        }
+        return product.get();
+    }
 }
          
