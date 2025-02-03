@@ -3,16 +3,11 @@ package food.delivery.minh.common.models.accounts;
 import java.util.ArrayList;
 import java.util.List;
 
-import food.delivery.minh.common.models.products.Cart;
-import food.delivery.minh.common.models.reviews.Review;
-import food.delivery.minh.common.models.schedules.Schedule;
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,19 +21,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User extends Account{
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-        name = "user_schedule",
+    @ElementCollection // Enables a collection of primitive types
+    @CollectionTable(
+        name = "user_schedule", 
         schema = "food-product",
-        joinColumns =  @JoinColumn(name = "account_id"),
-        inverseJoinColumns = @JoinColumn(name = "schedule_id")
+        joinColumns = @JoinColumn(name = "account_id")
     )
-    private List<Schedule> userSchedule = new ArrayList<>();
+    @Column(name = "schedule_id")
+    private List<Integer> scheduleIds = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner") // refer to the owner field in the review entity
-    private List<Review> userReviews = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "user_id") // Fix the reference
-    private Cart cart;
+    @ElementCollection
+    @CollectionTable(
+        name = "user_reviews",
+        schema = "food-product",
+        joinColumns = @JoinColumn(name = "account_id") // FK reference
+    )
+    @Column(name = "review_id")
+    private List<Integer> reviewIds = new ArrayList<>(); // Store only Review IDs
+
+
+    @Column(name = "cart_id")
+    private Integer cartId; // ✅ Integer allows null values
+
 }

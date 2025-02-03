@@ -2,14 +2,16 @@ package food.delivery.minh.common.models.products;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import food.delivery.minh.common.models.accounts.User;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -41,13 +43,19 @@ public class Cart {
         sequenceName = "food-product.cart_seq", 
         allocationSize = 1
     )
-    private int cartId;
+    private Integer cartId;
 
     private double price;
     
-    @ManyToMany(mappedBy = "productCart")
-    private List<Product> products = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(
+        name = "product_cart",
+        schema = "food-product",
+        joinColumns = @JoinColumn(name = "cart_id") // FK reference
+    )
+    @Column(name = "product_id")
+    private List<UUID> products = new ArrayList<>();
 
-    @OneToOne(mappedBy = "cart") // Bidirectional mapping to the 'cart' field in User
-    private User user; // The owning user of this cart
+    @Column(name = "account_id")
+    private Integer accountId; // Just store the foreign key reference
 }

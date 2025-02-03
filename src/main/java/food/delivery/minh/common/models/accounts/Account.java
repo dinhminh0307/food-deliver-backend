@@ -22,7 +22,7 @@ public class Account {
         sequenceName = "food-product.account_seq", 
         allocationSize = 1
     )
-    private int account_id;
+    private Integer account_id;
     
     private String email;
 
