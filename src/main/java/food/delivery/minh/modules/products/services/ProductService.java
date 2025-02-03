@@ -2,11 +2,14 @@ package food.delivery.minh.modules.products.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import food.delivery.minh.common.dto.ProductDTO;
 import food.delivery.minh.common.enums.TypeEnum.ProductType;
@@ -121,6 +124,58 @@ public class ProductService {
                                     createdProduct.getPrice(), createdProduct.getDescription());
         }
         return null;
-    }                                        
+    }
+    
+    public ProductDTO updateProduct(Product product) {
+        // Fetch the product from the main repository
+        Product existingProduct = productRepository.findById(product.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+    
+        // Update basic product details
+        existingProduct.setName(product.getName());
+        existingProduct.setPrice(product.getPrice());
+        existingProduct.setDescription(product.getDescription());
+    
+        // Save updated product to the repository
+        Product updatedProduct = productRepository.save(existingProduct);
+    
+        // Check which specific type table the product belongs to and update accordingly
+        Foods food = foodRepository.findById(product.getProductId()).orElse(null);
+        if (food != null) {
+            // Update food-specific details if found
+            food.setProduct(updatedProduct); // Update reference to updated product
+            foodRepository.save(food);
+        }
+    
+        Games game = gameRepository.findById(product.getProductId()).orElse(null);
+        if (game != null) {
+            // Update game-specific details if found
+            game.setProduct(updatedProduct); // Update reference to updated product
+            gameRepository.save(game);
+        }
+    
+        Movies movie = movieRepository.findById(product.getProductId()).orElse(null);
+        if (movie != null) {
+            // Update movie-specific details if found
+            movie.setProduct(updatedProduct); // Update reference to updated product
+            movieRepository.save(movie);
+        }
+    
+        // Return updated product as DTO
+        return new ProductDTO(
+                updatedProduct.getProductId(),
+                updatedProduct.getName(),
+                updatedProduct.getPrice(),
+                updatedProduct.getDescription()
+        );
+    }
+    
+    public Product getProductById(UUID id) throws NoResourceFoundException {
+       Optional<Product> product = productRepository.findById(id);
+       if(!product.isPresent()) {
+            throw new NoResourceFoundException(null, "Cant not find product by Id");
+        }
+        return product.get();
+    }
 }
          

@@ -2,12 +2,14 @@ package food.delivery.minh.common.models.schedules;
 import java.util.ArrayList;
 import java.util.List;
 
-import food.delivery.minh.common.models.accounts.User;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +32,21 @@ public class Schedule {
 
     private String category;
 
-    @ManyToMany(mappedBy = "userSchedule") // refer to the userSchedule field in the User entity
-    private List<User> accounts = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(
+        name = "user_schedule", 
+        schema = "food-product",
+        joinColumns = @JoinColumn(name = "schedule_id") // Foreign key reference
+    )
+    @Column(name = "account_id")
+    private List<Integer> accountIds = new ArrayList<>(); // ✅ Store only User IDs
+
+    @ElementCollection
+    @CollectionTable(
+        name = "cart_schedule", 
+        schema = "food-product",
+        joinColumns = @JoinColumn(name = "schedule_id") // Foreign key reference
+    )
+    @Column(name = "cart_id")
+    private List<Integer> cartId = new ArrayList<>(); // ✅ Store only User IDs
 }

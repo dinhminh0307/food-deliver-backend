@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,15 +32,14 @@ public class Product {
 
     private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-        name= "product_cart",
+    @ElementCollection
+    @CollectionTable(
+        name = "product_cart",
         schema = "food-product",
-        joinColumns = @JoinColumn(name= "product_id", referencedColumnName = "productId"),
-        inverseJoinColumns = @JoinColumn(name="cart_id", referencedColumnName="cartId")
-
+        joinColumns = @JoinColumn(name = "account_id") // FK reference
     )
-    private List<Cart> productCart = new ArrayList<>();
+    @Column(name = "cart_id")
+    private List<Integer> productCart = new ArrayList<>();
 
     
 

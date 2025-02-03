@@ -3,13 +3,22 @@ package food.delivery.minh.modules.carts.services;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import food.delivery.minh.common.api.RestApiService;
+import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
 import food.delivery.minh.common.dto.CartDTO;
 import food.delivery.minh.common.dto.ProductDTO;
+import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.products.Product;
 import food.delivery.minh.modules.carts.repos.CartRepository;
@@ -19,51 +28,95 @@ public class CartService {
     @Autowired
     CartRepository cartRepository;
 
-    public CartDTO addCart(Product product) {
-        List<Cart> carts = cartRepository.findAll();
-        if(carts.isEmpty()) {
-            Cart newCart = new Cart();
-            newCart.setPrice(product.getPrice());
-            newCart.setProducts(Arrays.asList(product));
-            Cart savedCart = cartRepository.save(newCart);
+    @Autowired
+    RestTemplate restTemplate;
 
-            // Convert Product list to ProductDTO list
-            List<ProductDTO> productDTOs = savedCart.getProducts().stream()
-                .map(prod -> new ProductDTO(
-                        prod.getProductId(),
-                        prod.getName(),
-                        prod.getPrice(),
-                        prod.getDescription()
-                ))
-                .collect(Collectors.toList());
+    @Autowired
+    private JwtRequestFilter authFilter;
 
-            return new CartDTO(
-                savedCart.getCartId(),
-                savedCart.getPrice(),
-                productDTOs
-            );
+    private static final String PRODUCT_UPDATE_API = "http://localhost:8080/product/update";
+
+    private static final String USER_UPDATE_API = "http://localhost:8080/currentUser/update";
+
+    private String GET_USER_URL = "http://localhost:8080/currentUser";
+
+    private static final  String PRODUCT_FIND_ID_API = "http://localhost:8080/product/get/uuid?id=";
+
+    @Autowired
+    RestApiService restApiService;
+
+    public Page<Cart> getAllCart(Pageable pageable) {
+        return cartRepository.findAll(pageable);
+    }
+
+
+    public Cart addCart(Product product, User user) {
+        System.out.println("Email: " + user.getEmail());
+    
+        // Fetch the user's cart directly instead of looping
+        Optional<Cart> optionalCart = cartRepository.findByAccountId(user.getAccount_id());
+    
+        Cart cart;
+        boolean isNewCart = false;
+    
+        if (optionalCart.isPresent()) {
+            // If cart exists, update it
+            cart = optionalCart.get();
+            cart.getProducts().add(product.getProductId());
+            cart.setPrice(cart.getPrice() + product.getPrice());
+        } else {
+            // If no cart exists, create a new one
+            cart = new Cart();
+            
+            cart.setPrice(product.getPrice());
+            cart.setProducts(new ArrayList<>(Arrays.asList(product.getProductId())));
+            cart.setAccountId(user.getAccount_id()); // Ensure accountId is set
+            isNewCart = true;
         }
+    
+        // Save the cart before updating relationships
+        Cart savedCart = cartRepository.save(cart);
+        System.out.println("Cart account: " + savedCart.getCartId());
+        if (isNewCart) {
+            // ✅ Ensure user.cartId is updated only after cart is saved
+            user.setCartId(savedCart.getCartId());
+            restApiService.putRequest(USER_UPDATE_API, user, User.class);
+        }
+    
+        // Maintain bidirectional relationship for product
+        product.getProductCart().add(savedCart.getCartId());
+        restApiService.putRequest(PRODUCT_UPDATE_API, product, Product.class);
+    
+        return savedCart;
+    }
+    
+    public CartDTO getCartFromUser() throws NoResourceFoundException {
+        // get the current user rest api
+        User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
         
-        // if not empty, update the cart
-        Cart foundCart = carts.get(0);
-        List<Product> updatedProducts = new ArrayList<>(foundCart.getProducts());
-        updatedProducts.add(product);
-        foundCart.setProducts(updatedProducts);
-        foundCart.setPrice(foundCart.getPrice() + product.getPrice());
-
-        Cart savedCart = cartRepository.save(foundCart);
-        List<ProductDTO> productDTOs = savedCart.getProducts().stream()
-                                        .map(prod -> new ProductDTO(
-                                            prod.getProductId(),
-                                            prod.getName(),
-                                            prod.getPrice(),
-                                            prod.getDescription()
-                                        ))
-                                        .collect(Collectors.toList());
-        return new CartDTO(
-            savedCart.getCartId(),
-            savedCart.getPrice(),
-            productDTOs
-        );
+        // get the cart base on account id
+         // Fetch the user's cart directly instead of looping
+         Optional<Cart> optionalCart = cartRepository.findByAccountId(user.getAccount_id());
+         if(optionalCart.isPresent()) {
+            Cart foundCart = optionalCart.get();
+            
+            // get the product list rest api
+            List<ProductDTO> products = new ArrayList<>();
+            ResponseEntity<Product> response;
+            for(UUID p : foundCart.getProducts()) {
+                String newEndpoint = PRODUCT_FIND_ID_API + p.toString();
+                System.out.println("API endpoint: " + newEndpoint);
+                response = restApiService.getRequest(newEndpoint, Product.class);
+                if(response.getStatusCode().is2xxSuccessful()) {
+                    products.add(new ProductDTO(response.getBody().getProductId(), response.getBody().getName(), response.getBody().getPrice(), response.getBody().getDescription()));
+                } else {
+                    throw new NoResourceFoundException(null, "ERror fetch cart");
+                }
+            }
+            return new CartDTO(foundCart.getCartId(), 
+                    foundCart.getPrice(), 
+                    products);
+         }
+         throw new NoResourceFoundException(null, "User have no cart");
     }
 }

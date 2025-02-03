@@ -1,14 +1,12 @@
 package food.delivery.minh.common.models.reviews;
 
-import food.delivery.minh.common.models.accounts.User;
-import food.delivery.minh.common.models.products.Movies;
-import jakarta.persistence.CascadeType;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,17 +20,15 @@ import lombok.NoArgsConstructor;
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int reviewId;
+    private Integer reviewId;
 
     private String comment;
 
     private double rating;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "account_id", referencedColumnName = "account_id")
-    private User owner;
+    @Column(name = "account_id")
+    private Integer ownerId; // Store only the FK instead of the User entity
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="movie_id", referencedColumnName = "id")
-    private Movies movies;
+    @Column(name = "movie_id")
+    private UUID movieId; // Store only the FK instead of the User entity
 }

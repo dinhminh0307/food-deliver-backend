@@ -1,13 +1,22 @@
 package food.delivery.minh.modules.carts.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import food.delivery.minh.common.api.RestApiService;
+import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
 import food.delivery.minh.common.dto.CartDTO;
+import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Product;
 import food.delivery.minh.modules.carts.services.CartService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +30,16 @@ public class CartController {
     @Autowired
     CartService cartService;
 
+    @Autowired
+    RestTemplate restTemplate;
+
+     @Autowired
+    private JwtRequestFilter authFilter;
+
+    @Autowired
+    RestApiService restApiService;
+
+    private String GET_USER_URL = "http://localhost:8080/currentUser";
     
     @PostMapping("/cart/add")
     @Operation(
@@ -32,7 +51,34 @@ public class CartController {
             @ApiResponse(responseCode = "400", description = "Invalid input")
         }
     )
+
     public ResponseEntity<?> addToCart(@RequestBody Product product) {
-        return ResponseEntity.ok(cartService.addCart(product));
+        // Extract token using JwtRequestFilter
+        ResponseEntity<User> response = restApiService.getRequest(GET_USER_URL, User.class);
+        System.out.println("Response Body: " + response.getBody());
+        // Get the user object from the response
+        User user = response.getBody();
+        System.out.println("Response User: " + user.getEmail());
+        // Process and return the response
+        return ResponseEntity.ok(cartService.addCart(product, user));
+    }
+
+    @GetMapping("cart/all")
+    public ResponseEntity<?> getAllCart() {
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(cartService.getAllCart(pageable));
+    }
+
+    @GetMapping("cart/currentUser")
+    public ResponseEntity<?> getCartFromUser() {
+        try {
+            return ResponseEntity.ok(cartService.getCartFromUser());
+        } catch (NoResourceFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        }
     }
 }

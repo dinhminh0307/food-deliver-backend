@@ -2,8 +2,10 @@ package food.delivery.minh.common.configs;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -15,6 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import food.delivery.minh.common.auth.jwt.AppUserDetailsService;
 import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
@@ -75,6 +80,17 @@ public class SecurityConfig {
         authenticationProvider.setUserDetailsService(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        // Register any custom modules if needed (e.g., for Java 8 types, etc.)
+        
+        MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
+        messageConverter.setObjectMapper(objectMapper);
+
+        return builder.messageConverters(messageConverter).build();
     }
 }
 
