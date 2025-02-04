@@ -26,6 +26,7 @@ import food.delivery.minh.common.dto.ProductDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.products.Product;
+import food.delivery.minh.exceptions.DuplicateResourceException;
 import food.delivery.minh.modules.carts.services.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -118,6 +119,18 @@ public class CartController {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        }
+    }
+
+    @GetMapping("cart/item/check")
+    public ResponseEntity<?> validateItemCart(@RequestParam UUID productId) {
+        try {
+            cartService.checkDuplicateItem(productId);
+            return ResponseEntity.ok().build();
+        } catch (NoResourceFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
+        } catch (DuplicateResourceException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage()); 
         }
     }
 }

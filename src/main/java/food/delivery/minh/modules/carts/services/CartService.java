@@ -21,6 +21,7 @@ import food.delivery.minh.common.dto.ProductDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.products.Product;
+import food.delivery.minh.exceptions.DuplicateResourceException;
 import food.delivery.minh.modules.carts.repos.CartRepository;
 
 @Service
@@ -150,5 +151,16 @@ public class CartService {
             return cart.get();
         }
         throw new NoResourceFoundException(null, "Not matching Cart Id");
+    }
+
+    public void checkDuplicateItem(UUID productId) throws NoResourceFoundException, DuplicateResourceException {
+        // get the current user
+        ResponseEntity<User> response = restApiService.getRequest(GET_USER_URL, User.class);
+        // Get the user object from the response
+        User user = response.getBody();
+        Cart cart = cartRepository.findByAccountId(user.getAccount_id()).get();
+        if(cart.getProducts().contains(productId)) {
+            throw new DuplicateResourceException("The item is already added");
+        }
     }
 }
