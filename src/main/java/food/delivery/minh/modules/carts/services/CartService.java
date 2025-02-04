@@ -105,7 +105,6 @@ public class CartService {
             ResponseEntity<Product> response;
             for(UUID p : foundCart.getProducts()) {
                 String newEndpoint = PRODUCT_FIND_ID_API + p.toString();
-                System.out.println("API endpoint: " + newEndpoint);
                 response = restApiService.getRequest(newEndpoint, Product.class);
                 if(response.getStatusCode().is2xxSuccessful()) {
                     products.add(new ProductDTO(response.getBody().getProductId(), response.getBody().getName(), response.getBody().getPrice(), response.getBody().getDescription()));
@@ -118,5 +117,38 @@ public class CartService {
                     products);
          }
          throw new NoResourceFoundException(null, "User have no cart");
+    }
+
+    public Cart removeProductItem(UUID productId, int cartId) throws NoResourceFoundException {
+        // fetch product and cart
+        Cart cart = findCartById(cartId);
+        Product product = restApiService.getRequest(PRODUCT_FIND_ID_API + productId, Product.class).getBody();
+
+        List<UUID> products = cart.getProducts();
+        List<Integer> carts = product.getProductCart();
+        
+        if(products.contains(productId)) {
+            products.remove(productId);
+        }
+        cart.setProducts(products);
+        cart.setPrice(cart.getPrice() - product.getPrice());
+        Cart newCart = cartRepository.save(cart);
+
+        // Maintain bidirectional relationship for product
+        if(carts.contains(cartId)) {
+            carts.remove(cartId);
+        }
+        product.setProductCart(carts);
+
+        restApiService.putRequest(PRODUCT_UPDATE_API, product, Product.class);
+        return newCart;
+    }
+
+    public Cart findCartById(int id) throws NoResourceFoundException {
+        Optional<Cart> cart = cartRepository.findById(id);
+        if(cart.isPresent()) {
+            return cart.get();
+        }
+        throw new NoResourceFoundException(null, "Not matching Cart Id");
     }
 }
