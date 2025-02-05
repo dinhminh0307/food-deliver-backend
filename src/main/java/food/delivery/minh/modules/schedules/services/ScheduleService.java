@@ -2,6 +2,7 @@ package food.delivery.minh.modules.schedules.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import food.delivery.minh.common.dto.response.ProductDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.schedules.Schedule;
+import food.delivery.minh.exceptions.PassedException;
 import food.delivery.minh.modules.schedules.repos.ScheduleRepository;
 
 @Service
@@ -56,5 +58,25 @@ public class ScheduleService {
         }
         //set the schedule field and the save to database
         return scheduleRepository.save(schedule);
+    }
+
+    public List<Schedule> getCurrentUserSchedule() throws NoResourceFoundException, PassedException {
+        // get current user
+        User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
+        List<Schedule> schedules = new ArrayList<>();
+        Optional<Schedule> scheduleOptional;
+        // handle user does not have schedule case
+        if(user.getScheduleIds().isEmpty()) {
+            throw new PassedException("user currently has no schedule");
+        }
+        
+        for(int s : user.getScheduleIds()) {
+            scheduleOptional = scheduleRepository.findById(s);
+            if(!scheduleOptional.isPresent()) {
+                throw new NoResourceFoundException(null, "The schedule id is not in database");
+            }
+            schedules.add(scheduleOptional.get());
+        }
+        return schedules;
     }
 }
