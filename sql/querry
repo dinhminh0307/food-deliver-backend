@@ -1,5 +1,7 @@
 select * from "food-product".users;
 select * from "food-product".products;
+select * from "food-product".carts;
+select * from "food-product".schedules;
 select * from "food-product".games;
 select * from "food-product".game_types;
 
@@ -10,3 +12,6 @@ CREATE SEQUENCE "food-product".account_seq START 1;
 
 DROP SEQUENCE IF EXISTS "food-product".cart_seq;
 CREATE SEQUENCE "food-product".cart_seq START 1;
+
+DROP SEQUENCE IF EXISTS "food-product".schedule_seq;
+CREATE SEQUENCE "food-product".schedule_seq START 1;

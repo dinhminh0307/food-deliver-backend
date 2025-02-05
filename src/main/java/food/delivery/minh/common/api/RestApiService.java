@@ -64,6 +64,21 @@ public class RestApiService {
     }
 
     /**
+     * Generic DELETE request without needing to specify type.
+     */
+    public <T> ResponseEntity<T> deleteRequest(String url, Class<T> responseType) {
+        try {
+            HttpHeaders headers = createHeaders();
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            return restTemplate.exchange(url, HttpMethod.DELETE, entity, responseType);
+        } catch (Exception ex) {
+            System.err.println("DELETE request failed: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    /**
      * Helper method to create headers with JWT token.
      */
     private HttpHeaders createHeaders() {

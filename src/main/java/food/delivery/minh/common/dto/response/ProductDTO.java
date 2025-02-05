@@ -1,4 +1,4 @@
-package food.delivery.minh.common.dto;
+package food.delivery.minh.common.dto.response;
 
 import java.util.UUID;
 

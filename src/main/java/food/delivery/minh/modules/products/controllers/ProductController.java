@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import food.delivery.minh.common.dto.ProductDTO;
+import food.delivery.minh.common.dto.response.ProductDTO;
 import food.delivery.minh.common.enums.TypeEnum;
 import food.delivery.minh.common.models.products.Product;
 import food.delivery.minh.modules.products.services.ProductService;

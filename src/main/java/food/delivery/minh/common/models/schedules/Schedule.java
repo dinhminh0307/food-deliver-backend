@@ -1,6 +1,11 @@
 package food.delivery.minh.common.models.schedules;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -10,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,11 +29,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor // Generates a constructor with all arguments
 public class Schedule {
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    private int schedule_id;
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "schedule_seq_gen") // the id of the next records will depend from previous record id
+    @SequenceGenerator(
+        name = "schedule_seq_gen", 
+        sequenceName = "food-product.schedule_seq", 
+        allocationSize = 1
+    )
+    private Integer schedule_id;
 
-    private String time;
+    private DayOfWeek dayOfWeek; // Enum type (Monday, Tuesday, etc.)
 
+    private LocalTime scheduleTime; // Rename to avoid conflicts
+    
     private String name;
 
     private String category;
@@ -43,10 +56,10 @@ public class Schedule {
 
     @ElementCollection
     @CollectionTable(
-        name = "cart_schedule", 
+        name = "product_schedule", 
         schema = "food-product",
         joinColumns = @JoinColumn(name = "schedule_id") // Foreign key reference
     )
     @Column(name = "cart_id")
-    private List<Integer> cartId = new ArrayList<>(); // ✅ Store only User IDs
+    private List<UUID> productId = new ArrayList<>(); // ✅ Store only User IDs
 }
