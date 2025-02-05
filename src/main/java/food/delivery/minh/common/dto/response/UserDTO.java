@@ -1,4 +1,4 @@
-package food.delivery.minh.common.dto;
+package food.delivery.minh.common.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,12 +22,14 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import food.delivery.minh.common.api.RestApiService;
 import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
-import food.delivery.minh.common.dto.CartDTO;
-import food.delivery.minh.common.dto.ProductDTO;
+import food.delivery.minh.common.dto.request.DeleteCartRequest;
+import food.delivery.minh.common.dto.response.CartDTO;
+import food.delivery.minh.common.dto.response.ProductDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.products.Product;
 import food.delivery.minh.exceptions.DuplicateResourceException;
+import food.delivery.minh.exceptions.PassedException;
 import food.delivery.minh.modules.carts.services.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -131,6 +134,20 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); 
         } catch (DuplicateResourceException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage()); 
+        } catch (PassedException e) {
+            return ResponseEntity.ok().build(); 
+        }
+    }
+
+    @PutMapping("cart/remove")
+    public ResponseEntity<?> deleteCart(@RequestBody DeleteCartRequest request) {
+        try {
+            cartService.deleteCart(request.getCart(), request.getUser());
+            return ResponseEntity.ok().build();
+        } catch (NoResourceFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

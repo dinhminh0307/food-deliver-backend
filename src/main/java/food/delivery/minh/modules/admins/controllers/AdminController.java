@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import food.delivery.minh.common.auth.jwt.JwtUtil;
-import food.delivery.minh.common.dto.AccountDTO;
+import food.delivery.minh.common.dto.response.AccountDTO;
 import food.delivery.minh.common.models.accounts.Admin;
 import food.delivery.minh.modules.admins.services.AdminService;
 import jakarta.servlet.http.HttpServletResponse;

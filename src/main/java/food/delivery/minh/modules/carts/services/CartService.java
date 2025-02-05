@@ -16,12 +16,13 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import food.delivery.minh.common.api.RestApiService;
 import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
-import food.delivery.minh.common.dto.CartDTO;
-import food.delivery.minh.common.dto.ProductDTO;
+import food.delivery.minh.common.dto.response.CartDTO;
+import food.delivery.minh.common.dto.response.ProductDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.products.Product;
 import food.delivery.minh.exceptions.DuplicateResourceException;
+import food.delivery.minh.exceptions.PassedException;
 import food.delivery.minh.modules.carts.repos.CartRepository;
 
 @Service
@@ -153,14 +154,44 @@ public class CartService {
         throw new NoResourceFoundException(null, "Not matching Cart Id");
     }
 
-    public void checkDuplicateItem(UUID productId) throws NoResourceFoundException, DuplicateResourceException {
+    public void checkDuplicateItem(UUID productId) throws NoResourceFoundException, DuplicateResourceException, PassedException {
         // get the current user
         ResponseEntity<User> response = restApiService.getRequest(GET_USER_URL, User.class);
         // Get the user object from the response
         User user = response.getBody();
-        Cart cart = cartRepository.findByAccountId(user.getAccount_id()).get();
+        Optional<Cart> cartDTO = cartRepository.findByAccountId(user.getAccount_id());
+        if(!cartDTO.isPresent()) {
+            throw new PassedException(null);
+        }
+        Cart cart = cartDTO.get();
         if(cart.getProducts().contains(productId)) {
             throw new DuplicateResourceException("The item is already added");
         }
+    }
+
+    public void deleteCart(Cart cart, User user) throws NoResourceFoundException {
+        // get product object by send get request
+        Optional<Cart> c = cartRepository.findById(cart.getCartId());
+        if(!c.isPresent()) {
+            throw new NoResourceFoundException(null, "THe cart id is not correct to delete");
+        }
+        List<Product> products = new ArrayList<>();
+        Product p;
+        for(UUID id : c.get().getProducts()) {
+            String newEndpoint = PRODUCT_FIND_ID_API + id.toString();
+            p = restApiService.getRequest(newEndpoint, Product.class).getBody();
+            products.add(p);
+        }
+        // remove cart id from the product and send request update
+        for (Product product : products) {
+            product.getProductCart().remove(cart.getCartId());
+            restApiService.putRequest(PRODUCT_UPDATE_API, product, Product.class);
+        }
+
+        // remove cart id in user and send update request
+        user.setCartId(null);
+        restApiService.putRequest(USER_UPDATE_API, user, User.class);
+        // now delete in the repo
+        cartRepository.deleteById(cart.getCartId());
     }
 }

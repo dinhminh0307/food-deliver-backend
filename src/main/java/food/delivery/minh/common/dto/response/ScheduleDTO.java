@@ -1,4 +1,4 @@
-package food.delivery.minh.common.dto;
+package food.delivery.minh.common.dto.response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartDTO {
-    private int cartId;
+public class ScheduleDTO {
+    private int schedule_id;
 
-    private double price;
+    private String time;
+
+    private String name;
+
+    private String category;
+
+    private UserDTO owner;
 
     private List<ProductDTO> products = new ArrayList<>();
 }
