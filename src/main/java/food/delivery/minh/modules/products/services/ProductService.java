@@ -135,6 +135,9 @@ public class ProductService {
         existingProduct.setName(product.getName());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setDescription(product.getDescription());
+        if(product.getImageUrl() != null) {
+            existingProduct.setImageUrl(product.getImageUrl());
+        }
     
         // Save updated product to the repository
         Product updatedProduct = productRepository.save(existingProduct);

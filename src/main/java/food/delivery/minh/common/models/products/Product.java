@@ -32,6 +32,8 @@ public class Product {
 
     private String description;
 
+    private String imageUrl;
+
     @ElementCollection
     @CollectionTable(
         name = "product_cart",
