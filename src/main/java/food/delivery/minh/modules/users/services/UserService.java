@@ -1,7 +1,9 @@
     package food.delivery.minh.modules.users.services;
 
     import org.springframework.beans.factory.annotation.Autowired;
-    import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.stereotype.Service;
 
@@ -39,5 +41,9 @@
         public User updateCurrentUser(User user) {
              // Save and return the updated user
             return userRepository.save(user); 
+        }
+
+        public Page<User> getAllUser(Pageable pageable) {
+            return userRepository.findAll(pageable);
         }
     }

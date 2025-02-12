@@ -1,6 +1,8 @@
 package food.delivery.minh.modules.users.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import food.delivery.minh.common.auth.jwt.JwtUtil;
 import food.delivery.minh.common.dto.response.AccountDTO;
+import food.delivery.minh.common.enums.TypeEnum;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.modules.users.services.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -82,5 +86,13 @@ public class UserController {
     @PutMapping("/currentUser/update")
     public ResponseEntity<?> updateCurrentUser(@RequestBody User user) {
         return ResponseEntity.ok(userService.updateCurrentUser(user));
+    }
+
+    @GetMapping("user/get")
+    public ResponseEntity<?> getProductsByType(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(userService.getAllUser(pageable));
     }
 }

@@ -44,6 +44,8 @@ public class CartService {
 
     private static final  String PRODUCT_FIND_ID_API = "http://localhost:8080/product/get/uuid?id=";
 
+    private static final  String EMAIL_API_ENDPOINT = "http://localhost:8080/email/cart?cartId=";
+
     @Autowired
     RestApiService restApiService;
 
@@ -78,7 +80,6 @@ public class CartService {
     
         // Save the cart before updating relationships
         Cart savedCart = cartRepository.save(cart);
-        System.out.println("Cart account: " + savedCart.getCartId());
         if (isNewCart) {
             // ✅ Ensure user.cartId is updated only after cart is saved
             user.setCartId(savedCart.getCartId());
@@ -88,7 +89,9 @@ public class CartService {
         // Maintain bidirectional relationship for product
         product.getProductCart().add(savedCart.getCartId());
         restApiService.putRequest(PRODUCT_UPDATE_API, product, Product.class);
-    
+        
+        // add email proxy
+        restApiService.getRequest(EMAIL_API_ENDPOINT + savedCart.getCartId(), Void.class);
         return savedCart;
     }
     

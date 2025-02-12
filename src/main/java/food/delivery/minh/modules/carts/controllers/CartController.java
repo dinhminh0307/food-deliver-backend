@@ -150,4 +150,15 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
+    @GetMapping("cart/id")
+    public ResponseEntity<?> getCartById(@RequestParam int cartId) {
+        try {
+            return ResponseEntity.ok(cartService.findCartById(cartId));
+        } catch (NoResourceFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    } 
 }
