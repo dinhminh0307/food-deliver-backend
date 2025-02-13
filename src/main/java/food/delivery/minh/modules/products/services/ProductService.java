@@ -48,7 +48,8 @@ public class ProductService {
                 prod.getProductId(),
                 prod.getName(),
                 prod.getPrice(),
-                prod.getDescription()
+                prod.getDescription(),
+                prod.getImageUrl()
         ));
     }
 
@@ -58,7 +59,8 @@ public class ProductService {
                 food.getProduct().getProductId(),
                 food.getProduct().getName(),
                 food.getProduct().getPrice(),
-                food.getProduct().getDescription()
+                food.getProduct().getDescription(),
+                food.getProduct().getImageUrl()
         ));
     }
 
@@ -68,7 +70,8 @@ public class ProductService {
                 game.getProduct().getProductId(),
                 game.getProduct().getName(),
                 game.getProduct().getPrice(),
-                game.getProduct().getDescription()
+                game.getProduct().getDescription(),
+                game.getProduct().getImageUrl()
         ));
     }
 
@@ -78,7 +81,8 @@ public class ProductService {
                 movie.getProduct().getProductId(),
                 movie.getProduct().getName(),
                 movie.getProduct().getPrice(),
-                movie.getProduct().getDescription()
+                movie.getProduct().getDescription(),
+                movie.getProduct().getImageUrl()
         ));
     }
 
@@ -98,7 +102,7 @@ public class ProductService {
 
             foodRepository.save(savedFood);
             return new ProductDTO(createdProduct.getProductId(), createdProduct.getName(),
-                                    createdProduct.getPrice(), createdProduct.getDescription());
+                                    createdProduct.getPrice(), createdProduct.getDescription(), createdProduct.getImageUrl());
         } else if(ProductType.GAMES.name().toLowerCase().equals(type)) {
             Games savedGame = new Games();
             List<GameType> productTypeList = new ArrayList<>();
@@ -109,7 +113,7 @@ public class ProductService {
 
             gameRepository.save(savedGame);
             return new ProductDTO(createdProduct.getProductId(), createdProduct.getName(),
-                                    createdProduct.getPrice(), createdProduct.getDescription());
+                                    createdProduct.getPrice(), createdProduct.getDescription(), createdProduct.getImageUrl());
         } else if(ProductType.MOVIES.name().toLowerCase().equals(type)) {
             Movies savedMovies = new Movies();
             List<MovieType> productTypeList = new ArrayList<>();
@@ -121,7 +125,7 @@ public class ProductService {
 
             movieRepository.save(savedMovies);
             return new ProductDTO(createdProduct.getProductId(), createdProduct.getName(),
-                                    createdProduct.getPrice(), createdProduct.getDescription());
+                                    createdProduct.getPrice(), createdProduct.getDescription(), createdProduct.getImageUrl());
         }
         return null;
     }
@@ -135,6 +139,9 @@ public class ProductService {
         existingProduct.setName(product.getName());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setDescription(product.getDescription());
+        if(product.getImageUrl() != null) {
+            existingProduct.setImageUrl(product.getImageUrl());
+        }
     
         // Save updated product to the repository
         Product updatedProduct = productRepository.save(existingProduct);
@@ -166,7 +173,8 @@ public class ProductService {
                 updatedProduct.getProductId(),
                 updatedProduct.getName(),
                 updatedProduct.getPrice(),
-                updatedProduct.getDescription()
+                updatedProduct.getDescription(),
+                updatedProduct.getImageUrl()
         );
     }
     
