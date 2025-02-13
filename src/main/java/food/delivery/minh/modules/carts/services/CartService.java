@@ -112,7 +112,7 @@ public class CartService {
                 String newEndpoint = PRODUCT_FIND_ID_API + p.toString();
                 response = restApiService.getRequest(newEndpoint, Product.class);
                 if(response.getStatusCode().is2xxSuccessful()) {
-                    products.add(new ProductDTO(response.getBody().getProductId(), response.getBody().getName(), response.getBody().getPrice(), response.getBody().getDescription()));
+                    products.add(new ProductDTO(response.getBody().getProductId(), response.getBody().getName(), response.getBody().getPrice(), response.getBody().getDescription(), response.getBody().getImageUrl()));
                 } else {
                     throw new NoResourceFoundException(null, "ERror fetch cart");
                 }
