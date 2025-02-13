@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import food.delivery.minh.common.auth.jwt.JwtUtil;
 import food.delivery.minh.common.dto.response.AccountDTO;
-import food.delivery.minh.common.enums.TypeEnum;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.modules.users.services.UserService;
 import jakarta.servlet.http.HttpServletResponse;

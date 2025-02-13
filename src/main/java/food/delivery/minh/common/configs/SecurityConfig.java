@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import food.delivery.minh.common.auth.jwt.AppUserDetailsService;
 import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
@@ -44,7 +45,13 @@ public class SecurityConfig {
             .anyRequest().authenticated()
         )
         .logout(logout -> logout
-            .permitAll()
+                .logoutUrl("/logout")  // ✅ Ensure logout is handled by `/logout`
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setHeader("Set-Cookie", "jwtToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax");
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().write("Logout Successfully");  // ✅ Custom success message
+                    response.getWriter().flush();
+                })
         )
         .sessionManagement(sess -> sess
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
