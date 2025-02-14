@@ -39,7 +39,7 @@ public class ScheduleController {
     public ResponseEntity<?> getCurrentUserSchedule() {
         try {
             
-            return ResponseEntity.ok().body(scheduleService.getCurrentUserSchedule());
+            return ResponseEntity.ok().body(scheduleService.getDirectCurrentUserSchedule());
         } catch (NoResourceFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

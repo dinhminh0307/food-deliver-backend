@@ -17,7 +17,7 @@ public class TimeCheckService {
     @Autowired
     private CacheManager cacheManager;
 
-    @Scheduled(fixedRate = 60000) // Run every 60 seconds
+    @Scheduled(fixedRate = 6000) // Run every 60 seconds
     public void checkTimeAndDay() {
         LocalDateTime now = LocalDateTime.now();
         DayOfWeek dayOfWeek = now.getDayOfWeek();

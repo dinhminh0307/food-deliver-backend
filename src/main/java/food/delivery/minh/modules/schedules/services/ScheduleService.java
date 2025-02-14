@@ -59,6 +59,27 @@ public class ScheduleService {
         return scheduleRepository.save(schedule);
     }
 
+    public List<Schedule> getDirectCurrentUserSchedule() throws NoResourceFoundException, PassedException {
+        // get current user
+        User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
+        List<Schedule> schedules = new ArrayList<>();
+        Optional<Schedule> scheduleOptional;
+        // handle user does not have schedule case
+        if(user.getScheduleIds().isEmpty()) {
+            throw new PassedException("user currently has no schedule");
+        }
+        
+        for(int s : user.getScheduleIds()) {
+            scheduleOptional = scheduleRepository.findById(s);
+            if(!scheduleOptional.isPresent()) {
+                throw new NoResourceFoundException(null, "The schedule id is not in database");
+            }
+            schedules.add(scheduleOptional.get());
+        }
+        System.out.println("OK");
+        return schedules;
+    }
+
     @Cacheable(value = "schedules", key = "'currentUserSchedule'")
     public List<Schedule> getCurrentUserSchedule() throws NoResourceFoundException, PassedException {
         // get current user
