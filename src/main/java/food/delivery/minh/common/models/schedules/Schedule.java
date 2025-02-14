@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -44,6 +42,8 @@ public class Schedule {
     private String name;
 
     private String category;
+
+    private boolean isPassed = false;
 
     @ElementCollection
     @CollectionTable(

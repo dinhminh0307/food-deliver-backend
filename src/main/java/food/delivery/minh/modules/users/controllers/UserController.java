@@ -1,6 +1,7 @@
 package food.delivery.minh.modules.users.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,24 +21,27 @@ import org.springframework.web.bind.annotation.RestController;
 import food.delivery.minh.common.auth.jwt.JwtUtil;
 import food.delivery.minh.common.dto.response.AccountDTO;
 import food.delivery.minh.common.models.accounts.User;
+import food.delivery.minh.modules.schedules.services.ScheduleService;
 import food.delivery.minh.modules.users.services.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 
-
-
 @RestController
 @RequestMapping("/")
-
 public class UserController {
     @Autowired
     UserService userService;
-
 
     @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private ScheduleService scheduleService;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @PostMapping("signup")
     public ResponseEntity<?> createAccount(@RequestBody User user) {
@@ -58,15 +62,18 @@ public class UserController {
             if (authentication.isAuthenticated()) {
                 String token = jwtUtil.generateToken(user.getEmail());
 
-                    ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", token)
-                            .httpOnly(true)
-                            .secure(false)
-                            .path("/")
-                            .maxAge(60 * 60)
-                            .sameSite("Lax")
-                            .build();
+                ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", token)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(60 * 60)
+                        .sameSite("Lax")
+                        .build();
 
                 response.addHeader("Set-Cookie", jwtCookie.toString());
+
+                // Populate the cache with the current user's schedule
+                cacheManager.getCache("schedules").put("currentUserSchedule", scheduleService.getCurrentUserSchedule());
 
                 return ResponseEntity.ok("Login Successfully");
             } else {

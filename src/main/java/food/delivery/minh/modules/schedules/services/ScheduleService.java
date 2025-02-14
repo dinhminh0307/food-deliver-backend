@@ -3,9 +3,9 @@ package food.delivery.minh.modules.schedules.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import food.delivery.minh.common.api.RestApiService;
 import food.delivery.minh.common.dto.request.DeleteCartRequest;
 import food.delivery.minh.common.dto.response.CartDTO;
-import food.delivery.minh.common.dto.response.ProductDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.schedules.Schedule;
@@ -60,6 +59,7 @@ public class ScheduleService {
         return scheduleRepository.save(schedule);
     }
 
+    @Cacheable(value = "schedules", key = "'currentUserSchedule'")
     public List<Schedule> getCurrentUserSchedule() throws NoResourceFoundException, PassedException {
         // get current user
         User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
@@ -77,6 +77,7 @@ public class ScheduleService {
             }
             schedules.add(scheduleOptional.get());
         }
+        System.out.println("OK");
         return schedules;
     }
 }

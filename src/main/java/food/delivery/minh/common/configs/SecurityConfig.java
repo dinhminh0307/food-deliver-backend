@@ -42,6 +42,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorizeRequests -> 
             authorizeRequests
             .requestMatchers(publicEndpoints).permitAll()  // Allow public access to login and signup
+            .requestMatchers("/schedule/get/current").authenticated()  // Ensure this endpoint is authenticated
             .anyRequest().authenticated()
         )
         .logout(logout -> logout
@@ -72,12 +73,6 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // UserDetails user = User.withUsername("user")
-        //     .password(passwordEncoder().encode("password"))
-        //     .roles("USER")
-        //     .build();
-
-        // return new InMemoryUserDetailsManager(user);
         return new AppUserDetailsService();
     }
 
@@ -92,12 +87,8 @@ public class SecurityConfig {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         ObjectMapper objectMapper = new ObjectMapper();
-        // Register any custom modules if needed (e.g., for Java 8 types, etc.)
-        
         MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
         messageConverter.setObjectMapper(objectMapper);
-
         return builder.messageConverters(messageConverter).build();
     }
 }
-
