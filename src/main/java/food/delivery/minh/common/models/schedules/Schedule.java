@@ -1,4 +1,5 @@
 package food.delivery.minh.common.models.schedules;
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor // Generates a no-args constructor
 @AllArgsConstructor // Generates a constructor with all arguments
-public class Schedule {
+public class Schedule implements Serializable{
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "schedule_seq_gen") // the id of the next records will depend from previous record id
     @SequenceGenerator(
@@ -45,7 +47,7 @@ public class Schedule {
 
     private boolean isPassed = false;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER) // Fetch eagerly
     @CollectionTable(
         name = "user_schedule", 
         schema = "food-product",
@@ -54,7 +56,7 @@ public class Schedule {
     @Column(name = "account_id")
     private List<Integer> accountIds = new ArrayList<>(); // ✅ Store only User IDs
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER) // Fetch eagerly
     @CollectionTable(
         name = "product_schedule", 
         schema = "food-product",

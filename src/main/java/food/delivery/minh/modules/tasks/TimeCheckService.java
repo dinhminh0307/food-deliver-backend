@@ -23,20 +23,17 @@ public class TimeCheckService {
         DayOfWeek dayOfWeek = now.getDayOfWeek();
         int hour = now.getHour();
         int minute = now.getMinute();
+        // Perform your logic here
 
+        // now get current schedules of users
         // Fetch cached schedules
         List<Schedule> schedules = cacheManager.getCache("schedules").get("currentUserSchedule", List.class);
         if(schedules == null) {
             return;
         }
-        for(Schedule s : schedules) {
-            System.out.println("Schedule name: " + s.getName());
-        }
-        // Perform your logic here
-
-        // now get current schedules of users
         
         // if the if the current days of week is different from the schedule, then check the isPassed field (1)
+        
         // if the isPassed field is false or null, wait until the current days of week same day and same time then set to true 
         // and delete the schedule
 
