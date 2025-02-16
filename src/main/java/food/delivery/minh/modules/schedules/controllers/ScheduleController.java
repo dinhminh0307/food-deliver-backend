@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -35,7 +37,11 @@ public class ScheduleController {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
-        }
+        } catch (PassedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return ResponseEntity.ok().build();
+            }
     }
 
     @GetMapping("schedule/get/current")
@@ -54,6 +60,20 @@ public class ScheduleController {
             e.printStackTrace();
             System.out.println("Error here");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
+        }
+    }
+
+    @DeleteMapping("schedule/delete")
+    public ResponseEntity<?> deleteSchedule(@RequestParam int scheduleId) {
+        try {
+            scheduleService.deleteSchedule(scheduleId);
+            return ResponseEntity.ok().build();
+        } catch (NoResourceFoundException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        } catch (PassedException e) {
+            e.printStackTrace();
+            return ResponseEntity.ok().build();
         }
     }
 }

@@ -40,7 +40,9 @@ public class ScheduleService {
 
     private static final String GET_CURRENT_CART_API = "http://localhost:8080/cart/currentUser";
 
-    public Schedule createSchedule(Schedule schedule) throws NoResourceFoundException, RuntimeException {
+    private static final String USER_UPDATE_API = "http://localhost:8080/currentUser/update";
+
+    public Schedule createSchedule(Schedule schedule) throws NoResourceFoundException, RuntimeException, PassedException {
         // get current user
         User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
 
@@ -62,7 +64,11 @@ public class ScheduleService {
             throw new RuntimeException("Error deleting cart: " + res.getStatusCode() + " - " + res.getBody());
         }
         //set the schedule field and the save to database
-        return scheduleRepository.save(schedule);
+        
+        Schedule savedSchedule = scheduleRepository.save(schedule);
+        // populate to write to cache
+        cacheManager.getCache("schedules").put("currentUserSchedule", getCurrentUserSchedule());
+        return savedSchedule;
     }
 
     public List<ScheduleDTO> getDirectCurrentUserSchedule() throws NoResourceFoundException, PassedException {
@@ -93,6 +99,26 @@ public class ScheduleService {
             schedules.add(scheduleOptional.get());
         }
         return schedules;
+    }
+
+    public void deleteSchedule(int scheduleId) throws NoResourceFoundException, PassedException {
+        Optional<Schedule> scheduleOptional = scheduleRepository.findById(scheduleId);
+        User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
+        if(!scheduleOptional.isPresent()) {
+            throw new NoResourceFoundException(null, "The schedule id is not in database");
+        }
+        // remove schedule id in the user table
+        user.getScheduleIds().remove(Integer.valueOf(scheduleId));
+        ResponseEntity<User> response = restApiService.putRequest(USER_UPDATE_API, user, User.class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            // delete the schedule in the database
+            scheduleRepository.deleteById(scheduleId);
+
+            // populate to write to cache
+            cacheManager.getCache("schedules").put("currentUserSchedule", getCurrentUserSchedule());
+        } else {
+            throw new RuntimeException("Failed to update user: " + response.getStatusCode());
+        }
     }
 
     private ScheduleDTO convertToDTO(Schedule schedule) {
