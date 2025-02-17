@@ -24,6 +24,8 @@ public class TimeCheckService {
 
     private final static String _DELETE_SCHEDULE_API = "http://localhost:8080/schedule/delete?scheduleId=";
 
+    private final static String _SEND_REMIND_API = "http://localhost:8080/email/schedule";
+
     @Scheduled(fixedRate = 6000) // Run every 60 seconds
     public void checkTimeAndDay() throws Exception {
         LocalDateTime now = LocalDateTime.now();
@@ -53,6 +55,7 @@ public class TimeCheckService {
 
             } else if(dayOfWeek.equals(s.getDayOfWeek()) && currentTime.equals(s.getScheduleTime().minusMinutes(30))) {
                 // send email to user
+                restApiService.postRequest(_SEND_REMIND_API, s, Void.class);
             } else if(dayOfWeek.equals(s.getDayOfWeek()) && currentTime.isAfter(s.getScheduleTime())) {
                 // if the current days of week is the same day of week with schedule and time is above  30mins, send email (2)
                 // set isPassed to true and delete the schedule in database and update in cache 
