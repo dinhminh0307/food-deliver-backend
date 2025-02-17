@@ -3,8 +3,10 @@ package food.delivery.minh.modules.schedules.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import food.delivery.minh.common.api.RestApiService;
 import food.delivery.minh.common.dto.request.DeleteCartRequest;
 import food.delivery.minh.common.dto.response.CartDTO;
+import food.delivery.minh.common.dto.response.ScheduleDTO;
 import food.delivery.minh.common.models.accounts.User;
 import food.delivery.minh.common.models.products.Cart;
 import food.delivery.minh.common.models.schedules.Schedule;
@@ -24,6 +27,9 @@ import food.delivery.minh.modules.schedules.repos.ScheduleRepository;
 public class ScheduleService {
     @Autowired
     ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private CacheManager cacheManager;
     
     @Autowired
     RestApiService restApiService;
@@ -34,7 +40,9 @@ public class ScheduleService {
 
     private static final String GET_CURRENT_CART_API = "http://localhost:8080/cart/currentUser";
 
-    public Schedule createSchedule(Schedule schedule) throws NoResourceFoundException, RuntimeException {
+    private static final String USER_UPDATE_API = "http://localhost:8080/currentUser/update";
+
+    public Schedule createSchedule(Schedule schedule) throws NoResourceFoundException, RuntimeException, PassedException {
         // get current user
         User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
 
@@ -56,28 +64,20 @@ public class ScheduleService {
             throw new RuntimeException("Error deleting cart: " + res.getStatusCode() + " - " + res.getBody());
         }
         //set the schedule field and the save to database
-        return scheduleRepository.save(schedule);
+        
+        Schedule savedSchedule = scheduleRepository.save(schedule);
+        // populate to write to cache
+        cacheManager.getCache("schedules").put("currentUserSchedule", getCurrentUserSchedule());
+        return savedSchedule;
     }
 
-    public List<Schedule> getDirectCurrentUserSchedule() throws NoResourceFoundException, PassedException {
+    public List<ScheduleDTO> getDirectCurrentUserSchedule() throws NoResourceFoundException, PassedException {
         // get current user
-        User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
-        List<Schedule> schedules = new ArrayList<>();
-        Optional<Schedule> scheduleOptional;
-        // handle user does not have schedule case
-        if(user.getScheduleIds().isEmpty()) {
-            throw new PassedException("user currently has no schedule");
+        List<Schedule> schedules = cacheManager.getCache("schedules").get("currentUserSchedule", List.class);
+        if (schedules == null) {
+            return new ArrayList<>();
         }
-        
-        for(int s : user.getScheduleIds()) {
-            scheduleOptional = scheduleRepository.findById(s);
-            if(!scheduleOptional.isPresent()) {
-                throw new NoResourceFoundException(null, "The schedule id is not in database");
-            }
-            schedules.add(scheduleOptional.get());
-        }
-        System.out.println("OK");
-        return schedules;
+        return schedules.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Cacheable(value = "schedules", key = "'currentUserSchedule'")
@@ -98,7 +98,39 @@ public class ScheduleService {
             }
             schedules.add(scheduleOptional.get());
         }
-        System.out.println("OK");
         return schedules;
+    }
+
+    public void deleteSchedule(int scheduleId) throws NoResourceFoundException, PassedException {
+        Optional<Schedule> scheduleOptional = scheduleRepository.findById(scheduleId);
+        User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();
+        if(!scheduleOptional.isPresent()) {
+            throw new NoResourceFoundException(null, "The schedule id is not in database");
+        }
+        // remove schedule id in the user table
+        user.getScheduleIds().remove(Integer.valueOf(scheduleId));
+        ResponseEntity<User> response = restApiService.putRequest(USER_UPDATE_API, user, User.class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            // delete the schedule in the database
+            scheduleRepository.deleteById(scheduleId);
+
+            // populate to write to cache
+            cacheManager.getCache("schedules").put("currentUserSchedule", getCurrentUserSchedule());
+        } else {
+            throw new RuntimeException("Failed to update user: " + response.getStatusCode());
+        }
+    }
+
+    private ScheduleDTO convertToDTO(Schedule schedule) {
+        return new ScheduleDTO(
+            schedule.getSchedule_id(),
+            schedule.getDayOfWeek(),
+            schedule.getScheduleTime(),
+            schedule.getName(),
+            schedule.getCategory(),
+            schedule.isPassed(),
+            schedule.getAccountIds(),
+            schedule.getProductId()
+        );
     }
 }

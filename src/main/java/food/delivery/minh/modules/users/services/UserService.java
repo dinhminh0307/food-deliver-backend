@@ -1,13 +1,16 @@
     package food.delivery.minh.modules.users.services;
 
-    import org.springframework.beans.factory.annotation.Autowired;
+    import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-    import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
+import food.delivery.minh.common.auth.jwt.JwtRequestFilter;
     import food.delivery.minh.common.models.accounts.User;
     import food.delivery.minh.modules.users.repos.UserRepository;
 
@@ -36,6 +39,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
         public User getCurrentUser() {
             return findByEmail(authFilter.getUserEmail());
+        }
+
+        public User getUserById(int userId) throws NoResourceFoundException {
+            Optional<User> userOptional = userRepository.findById(userId);
+            if(!userOptional.isPresent()) {
+                throw new NoResourceFoundException(null, "No User Id in database");
+            }
+            return userOptional.get();
         }
 
         public User updateCurrentUser(User user) {

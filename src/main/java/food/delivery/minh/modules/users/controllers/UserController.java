@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import food.delivery.minh.common.auth.jwt.JwtUtil;
 import food.delivery.minh.common.dto.response.AccountDTO;
@@ -100,5 +101,16 @@ public class UserController {
         @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(userService.getAllUser(pageable));
+    }
+
+    @GetMapping("user/id")
+    public ResponseEntity<?> getUserById(@RequestParam int userId) {
+        try {
+            return ResponseEntity.ok(userService.getUserById(userId));
+        } catch (NoResourceFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getBody());
+        }
     }
 }
