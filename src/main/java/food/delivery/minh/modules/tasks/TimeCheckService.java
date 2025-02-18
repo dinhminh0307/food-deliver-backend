@@ -42,7 +42,6 @@ public class TimeCheckService {
         
         // if the if the current days of week is different from the schedule, then check the isPassed field (1)
         for(Schedule s : schedules) {
-            System.out.println("Schedule Id: " + s.getSchedule_id().toString() + " Schedule Name: " + s.getName());
             if(!dayOfWeek.equals(s.getDayOfWeek()) && !s.isPassed()) {
                 continue;
             } else if(!dayOfWeek.equals(s.getDayOfWeek()) && !s.isPassed()) {

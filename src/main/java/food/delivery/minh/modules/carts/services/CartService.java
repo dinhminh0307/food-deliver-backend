@@ -55,7 +55,6 @@ public class CartService {
 
 
     public Cart addCart(Product product, User user) {
-        System.out.println("Email: " + user.getEmail());
     
         // Fetch the user's cart directly instead of looping
         Optional<Cart> optionalCart = cartRepository.findByAccountId(user.getAccount_id());

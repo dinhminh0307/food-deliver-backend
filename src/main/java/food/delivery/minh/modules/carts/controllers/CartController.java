@@ -69,10 +69,8 @@ public class CartController {
     public ResponseEntity<?> addToCart(@RequestBody Product product) {
         // Extract token using JwtRequestFilter
         ResponseEntity<User> response = restApiService.getRequest(GET_USER_URL, User.class);
-        System.out.println("Response Body: " + response.getBody());
         // Get the user object from the response
         User user = response.getBody();
-        System.out.println("Response User: " + user.getEmail());
         // Process and return the response
         return ResponseEntity.ok(cartService.addCart(product, user));
     }

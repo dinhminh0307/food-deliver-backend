@@ -58,7 +58,6 @@ public class ScheduleController {
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            System.out.println("Error here");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
         }
     }
