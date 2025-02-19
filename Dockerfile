@@ -1,22 +1,14 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:21-jdk
+# Use the official OpenJDK 21 base image
+FROM openjdk:21-jdk-slim
 
-# Set the working directory in the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the Maven wrapper and pom.xml to the container
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
+# Copy the built jar file into the container
+COPY target/minh-0.0.1-SNAPSHOT.jar app.jar
 
-# Copy the project files to the container
-COPY src src
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Expose the port the application runs on
+# Expose port 8080
 EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "target/minh-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
