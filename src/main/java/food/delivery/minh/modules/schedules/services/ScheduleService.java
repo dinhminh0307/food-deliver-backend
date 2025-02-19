@@ -87,9 +87,9 @@ public class ScheduleService {
         List<Schedule> schedules = new ArrayList<>();
         Optional<Schedule> scheduleOptional;
         // handle user does not have schedule case
-        if(user.getScheduleIds().isEmpty()) {
-            throw new PassedException("user currently has no schedule");
-        }
+        // if(user.getScheduleIds().isEmpty()) {
+        //     throw new PassedException("user currently has no schedule");
+        // }
         
         for(int s : user.getScheduleIds()) {
             scheduleOptional = scheduleRepository.findById(s);
