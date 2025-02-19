@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./src/main/resources/db/db-init:/docker-entrypoint-initdb.d
     networks:
       - backend-network
     healthcheck:
@@ -37,7 +38,7 @@ services:
 
 volumes:
   postgres-data:
-    driver: local
+    external: true
 
 networks:
   backend-network:

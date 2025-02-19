@@ -22,6 +22,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import food.delivery.minh.common.auth.jwt.JwtUtil;
 import food.delivery.minh.common.dto.response.AccountDTO;
 import food.delivery.minh.common.models.accounts.User;
+import food.delivery.minh.exceptions.PassedException;
 import food.delivery.minh.modules.schedules.services.ScheduleService;
 import food.delivery.minh.modules.users.services.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -80,6 +81,9 @@ public class UserController {
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed.");
             }
+        }
+        catch (PassedException e) {
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
