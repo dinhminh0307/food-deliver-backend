@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS "food-product".user_reviews (
 -- Create schedules table
 CREATE TABLE IF NOT EXISTS "food-product".schedules (
     schedule_id SERIAL PRIMARY KEY,
-    day_of_week SMALLINT,
+    day_of_week VARCHAR(255),
     schedule_time TIME,
     name VARCHAR(255),
     category VARCHAR(255),
@@ -53,5 +53,9 @@ CREATE TABLE IF NOT EXISTS "food-product".product_schedule (
     PRIMARY KEY (schedule_id, cart_id)
 );
 
-ALTER TABLE "food-product".schedules
-ALTER COLUMN day_of_week TYPE SMALLINT USING day_of_week::SMALLINT;
+-- Create product_cart table
+CREATE TABLE IF NOT EXISTS "food-product".product_cart (
+    cart_id UUID PRIMARY KEY,
+    account_id INTEGER NOT NULL,
+    product_id UUID[]
+);

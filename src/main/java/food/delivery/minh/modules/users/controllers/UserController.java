@@ -75,8 +75,10 @@ public class UserController {
                 response.addHeader("Set-Cookie", jwtCookie.toString());
 
                 // Populate the cache with the current user's schedule
-                cacheManager.getCache("schedules").put("currentUserSchedule", scheduleService.getCurrentUserSchedule());
-
+                if (cacheManager.getCache("schedules") != null) {
+                    cacheManager.getCache("schedules").put("currentUserSchedule", scheduleService.getCurrentUserSchedule());
+                }
+                
                 return ResponseEntity.ok("Login Successfully");
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed.");
