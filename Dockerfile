@@ -12,11 +12,14 @@ COPY pom.xml .
 # Copy the project files to the container
 COPY src src
 
+# Grant execute permission for the Maven Wrapper
+RUN chmod +x mvnw
+
 # Build the application
 RUN ./mvnw clean package -DskipTests
 
 # Expose the port the application runs on
 EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["sh", "-c", "java -jar target/minh-0.0.1-SNAPSHOT.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod}"]
+# Set entrypoint without using sh -c (which can cause issues)
+ENTRYPOINT ["java", "-jar", "target/minh-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod}"]
