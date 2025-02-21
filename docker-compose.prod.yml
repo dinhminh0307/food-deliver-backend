@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: food-deliver-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # Run with prod profile
+      DATABASE_URL: ${DATABASE_URL}  # Set Render PostgreSQL URL
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
