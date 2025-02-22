@@ -128,17 +128,20 @@ CREATE TABLE IF NOT EXISTS "food-product".reviews (
 -- Create movie_types table
 CREATE TABLE IF NOT EXISTS "food-product".movie_types (
     movie_type_id SERIAL PRIMARY KEY,
-    movie_type VARCHAR(255)
+    movie_type VARCHAR(255),
+    movie_id UUID REFERENCES "food-product".movies(id) ON DELETE CASCADE
 );
 
 -- Create game_types table
 CREATE TABLE IF NOT EXISTS "food-product".game_types (
     game_type_id SERIAL PRIMARY KEY,
-    game_type VARCHAR(255)
+    game_type VARCHAR(255),
+    game_id UUID REFERENCES "food-product".games(id) ON DELETE CASCADE
 );
 
 -- Create food_types table
 CREATE TABLE IF NOT EXISTS "food-product".food_types (
     food_type_id SERIAL PRIMARY KEY,
-    food_type VARCHAR(255)
+    food_type VARCHAR(255),
+    food_id UUID REFERENCES "food-product".foods(id) ON DELETE CASCADE
 );
