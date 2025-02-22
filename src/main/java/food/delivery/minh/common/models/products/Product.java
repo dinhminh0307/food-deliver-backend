@@ -38,7 +38,7 @@ public class Product {
     @CollectionTable(
         name = "product_cart",
         schema = "food-product",
-        joinColumns = @JoinColumn(name = "account_id") // FK reference
+        joinColumns = @JoinColumn(name = "product_id") // FK reference
     )
     @Column(name = "cart_id")
     private List<Integer> productCart = new ArrayList<>();

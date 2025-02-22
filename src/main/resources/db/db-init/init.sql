@@ -32,7 +32,13 @@ CREATE TABLE IF NOT EXISTS "food-product".users (
 
 -- Create admins table
 CREATE TABLE IF NOT EXISTS "food-product".admins (
-    account_id SERIAL PRIMARY KEY
+    account_id SERIAL PRIMARY KEY,
+    dob VARCHAR(255),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    password VARCHAR(255),
+    phone_number VARCHAR(255)
 );
 
 -- Create cart table with `cart_id` as SERIAL
