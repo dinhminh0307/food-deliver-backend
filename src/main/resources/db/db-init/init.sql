@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS "food-product".product_cart (
 CREATE SEQUENCE IF NOT EXISTS "food-product".schedule_seq START WITH 1 INCREMENT BY 1;
 CREATE TABLE IF NOT EXISTS "food-product".schedules (
     schedule_id INTEGER PRIMARY KEY DEFAULT nextval('"food-product".schedule_seq'),
-    day_of_week VARCHAR(20),
+    day_of_week SMALLINT,
     schedule_time TIME,
     name VARCHAR(255),
     category VARCHAR(255),
