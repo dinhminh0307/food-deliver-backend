@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS "food-product".users (
     last_name VARCHAR(255),
     password VARCHAR(255),
     phone_number VARCHAR(255),
+    image_url TEXT,
     cart_id INTEGER
 );
 
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS "food-product".admins (
     first_name VARCHAR(255),
     last_name VARCHAR(255),
     password VARCHAR(255),
+    image_url TEXT,
     phone_number VARCHAR(255)
 );
 
