@@ -13,7 +13,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173", "http://localhost:8080", "https://delivery-food-2uxg9dfsg-dinhminh0307s-projects.vercel.app")  // Restrict to known frontend
+                        .allowedOrigins("http://localhost:5173", "http://localhost:8080", "https://delivery-food-jpzgsh1ez-dinhminh0307s-projects.vercel.app/")  // Restrict to known frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")  // Specify needed headers
                         .allowCredentials(true);  // Important for cookies and security
