@@ -125,6 +125,13 @@ CREATE TABLE IF NOT EXISTS "food-product".reviews (
     movie_id UUID REFERENCES "food-product".movies(id) ON DELETE CASCADE
 );
 
+-- Create user_reviews table
+CREATE TABLE IF NOT EXISTS "food-product".user_reviews (
+    account_id INTEGER NOT NULL REFERENCES "food-product".users(account_id) ON DELETE CASCADE,
+    review_id INTEGER NOT NULL REFERENCES "food-product".reviews(review_id) ON DELETE CASCADE,
+    PRIMARY KEY (account_id, review_id)
+);
+
 -- Create movie_types table
 CREATE SEQUENCE IF NOT EXISTS "food-product".movie_type_seq START WITH 1 INCREMENT BY 1;
 CREATE TABLE IF NOT EXISTS "food-product".movie_types (
