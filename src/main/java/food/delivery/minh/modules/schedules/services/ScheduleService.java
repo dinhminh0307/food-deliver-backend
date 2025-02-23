@@ -101,6 +101,27 @@ public class ScheduleService {
         return schedules;
     }
 
+    // overloading this method
+    @Cacheable(value = "schedules", key = "'currentUserSchedule'")
+    public List<Schedule> getCurrentUserSchedule(User user) throws NoResourceFoundException, PassedException {
+        // get current user
+        List<Schedule> schedules = new ArrayList<>();
+        Optional<Schedule> scheduleOptional;
+        // handle user does not have schedule case
+        if(user.getScheduleIds().isEmpty()) {
+            throw new PassedException("user currently has no schedule");
+        }
+        
+        for(int s : user.getScheduleIds()) {
+            scheduleOptional = scheduleRepository.findById(s);
+            if(!scheduleOptional.isPresent()) {
+                throw new NoResourceFoundException(null, "The schedule id is not in database");
+            }
+            schedules.add(scheduleOptional.get());
+        }
+        return schedules;
+    }
+
     public void deleteSchedule(int scheduleId) throws NoResourceFoundException, PassedException {
         Optional<Schedule> scheduleOptional = scheduleRepository.findById(scheduleId);
         User user = restApiService.getRequest(GET_USER_URL, User.class).getBody();

@@ -74,9 +74,12 @@ public class UserController {
 
                 response.addHeader("Set-Cookie", jwtCookie.toString());
 
+                // find user by email
+                user = userService.findByEmail(user.getEmail());
+
                 // Populate the cache with the current user's schedule
                 if (cacheManager.getCache("schedules") != null) {
-                    cacheManager.getCache("schedules").put("currentUserSchedule", scheduleService.getCurrentUserSchedule());
+                    cacheManager.getCache("schedules").put("currentUserSchedule", scheduleService.getCurrentUserSchedule(user));
                 }
                 
                 return ResponseEntity.ok("Login Successfully");
