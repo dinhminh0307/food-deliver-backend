@@ -18,9 +18,12 @@ DROP TABLE IF EXISTS "food-product".movie_types CASCADE;
 DROP TABLE IF EXISTS "food-product".game_types CASCADE;
 DROP TABLE IF EXISTS "food-product".food_types CASCADE;
 
+-- Create sequence for account_id
+CREATE SEQUENCE IF NOT EXISTS "food-product".account_seq START WITH 1 INCREMENT BY 1;
+
 -- Create users table
 CREATE TABLE IF NOT EXISTS "food-product".users (
-    account_id SERIAL PRIMARY KEY,
+    account_id INTEGER PRIMARY KEY DEFAULT nextval('"food-product".account_seq'),
     dob VARCHAR(255),
     email VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255),
@@ -33,7 +36,7 @@ CREATE TABLE IF NOT EXISTS "food-product".users (
 
 -- Create admins table
 CREATE TABLE IF NOT EXISTS "food-product".admins (
-    account_id SERIAL PRIMARY KEY,
+    account_id INTEGER PRIMARY KEY DEFAULT nextval('"food-product".account_seq'),
     dob VARCHAR(255),
     email VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255),
