@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FoodType {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "food_type_seq_gen")
+    @SequenceGenerator(
+        name = "food_type_seq_gen",
+        sequenceName = "food-product.food_type_seq",
+        allocationSize = 1
+    )
     @jakarta.persistence.Column(name = "food_type_id")
     private int foodTypeId;
     private String foodType; // then convert to enum
